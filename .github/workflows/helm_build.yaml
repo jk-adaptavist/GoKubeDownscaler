@@ -37,14 +37,4 @@ jobs:
           cd deployments/chart
           helm lint .
           helm package . --version ${{ inputs.version }} --app-version ${{ inputs.appVersion }}
-          helm push $(ls *.tgz | head -1) oci://ghcr.io/caas-team/charts
-        env:
-          REPO: caas
-
-      - name: Dispatch Event to Helm-Charts Repo
-        uses: peter-evans/repository-dispatch@v4
-        with:
-          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-          repository: caas-team/helm-charts
-          event-type: new-helm-chart-version
-          client-payload: '{"chart": "go-kube-downscaler", "version": "${{ inputs.version }}"}'
+          helm push $(ls *.tgz | head -1) oci://ghcr.io/jk-adaptavist/charts

@@ -25,7 +25,7 @@ jobs:
         uses: docker/metadata-action@v6
         with:
           images: |
-            ghcr.io/caas-team/gokubedownscaler
+            ghcr.io/jk-adaptavist/gokubedownscaler
           tags: |
             ${{ inputs.setLatest && 'latest' || '' }}
             ${{ inputs.appVersion }}
@@ -35,15 +35,10 @@ jobs:
         uses: docker/metadata-action@v6
         with:
           images: |
-            ghcr.io/caas-team/gokubedownscaler-webhook
+            ghcr.io/jk-adaptavist/gokubedownscaler-webhook
           tags: |
             ${{ inputs.setLatest && 'latest' || '' }}
             ${{ inputs.appVersion }}
-
-      - name: Install Cosign
-        uses: sigstore/cosign-installer@main
-        with:
-          cosign-release: "v2.2.0"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
@@ -74,26 +69,3 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ steps.meta-webhook.outputs.tags }}
-
-      - name: Sign Push
-        run: |
-          cosign sign --key env://COSIGN_KEY --tlog-upload=false ghcr.io/caas-team/gokubedownscaler@${{ steps.build-push.outputs.digest }}
-          cosign sign --key env://COSIGN_KEY --tlog-upload=false ghcr.io/caas-team/gokubedownscaler-webhook@${{ steps.build-push-webhook.outputs.digest }}
-        env:
-          COSIGN_KEY: ${{ secrets.COSIGN_KEY }}
-
-      - name: Tag untagged versions
-        uses: jtaeuber/tag-multiarch-images@v0.1.0
-        with:
-          gh_token: ${{ secrets.GITHUB_TOKEN }}
-          gh_user: caas-team
-          package_name: gokubedownscaler
-          tag: ${{ inputs.appVersion }}
-
-      - name: Tag untagged versions webhook
-        uses: jtaeuber/tag-multiarch-images@v0.1.0
-        with:
-          gh_token: ${{ secrets.GITHUB_TOKEN }}
-          gh_user: caas-team
-          package_name: gokubedownscaler-webhook
-          tag: ${{ inputs.appVersion }}
